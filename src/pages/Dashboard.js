@@ -3,66 +3,63 @@ import axios from 'axios';
 
 function Dashboard() {
   const [materials, setMaterials] = useState([]);
-  const [selectedMaterial, setSelectedMaterial] = useState('');
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [quantity, setQuantity] = useState(0);
-  const [lastUpdated, setLastUpdated] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const fetchMaterials = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/materials`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/materials`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        });
         setMaterials(response.data);
-      } catch (error) {
-        console.error('Error fetching materials:', error);
+      } catch (err) {
+        console.error('No se pudo obtener los materiales:', err);
       }
     };
-
     fetchMaterials();
   }, []);
 
-  const handleMaterialChange = (e) => {
-    const materialId = e.target.value;
-    setSelectedMaterial(materialId);
-    const material = materials.find((m) => m.id === materialId);
-    setLastUpdated(material ? new Date(material.lastUpdated).toLocaleString() : '');
-  };
+  const handleUpdateStock = async (action) => {
+    if (!selectedMaterial) {
+      setMessage('Por favor, selecciona un material.');
+      return;
+    }
 
-  const handleUpdate = async (action) => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/materials/update`, {
         materialId: selectedMaterial,
         quantity: action === 'add' ? quantity : -quantity,
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
-      
-      if (response.data.success) {
-        alert('Material actualizado correctamente');
-        setLastUpdated(new Date(response.data.material.lastUpdated).toLocaleString());
-      }
-    } catch (error) {
-      console.error('Error updating material:', error);
+      setMessage(`Stock actualizado correctamente: ${response.data.material.name}`);
+      setQuantity(0); // Restablece el campo de cantidad
+    } catch (err) {
+      console.error('No se pudo actualizar el stock:', err);
+      setMessage('Error al actualizar el stock.');
     }
   };
 
   return (
     <div>
-      <h2>Dashboard</h2>
-      <select onChange={handleMaterialChange} value={selectedMaterial}>
-        <option value="">Seleccione un material</option>
-        {materials.map((material) => (
-          <option key={material.id} value={material.id}>
-            {material.nombre}
-          </option>
+      <h2>Gestión de Inventario</h2>
+      <select onChange={(e) => setSelectedMaterial(e.target.value)} value={selectedMaterial}>
+        <option value="">Selecciona un material</option>
+        {materials.map(material => (
+          <option key={material.id} value={material.id}>{material.name} - {material.stock} unidades en stock</option>
         ))}
       </select>
-      <input
-        type="number"
-        placeholder="Cantidad"
-        value={quantity}
-        onChange={(e) => setQuantity(Number(e.target.value))}
+      <input 
+        type="number" 
+        value={quantity} 
+        onChange={(e) => setQuantity(parseInt(e.target.value, 10))} 
+        placeholder="Introduce la cantidad" 
       />
-      <button onClick={() => handleUpdate('add')}>Sumar</button>
-      <button onClick={() => handleUpdate('subtract')}>Restar</button>
-      {lastUpdated && <p>Última actualización: {lastUpdated}</p>}
+      <button onClick={() => handleUpdateStock('add')}>Añadir al Stock</button>
+      <button onClick={() => handleUpdateStock('subtract')}>Restar del Stock</button>
+      {message && <p>{message}</p>}
     </div>
   );
 }

@@ -1,16 +1,26 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import './App.css';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
+      <Switch>
+        <Route path="/login">
+          {isAuthenticated ? <Redirect to="/dashboard" /> : <Login onLogin={handleLogin} />}
+        </Route>
+        <Route path="/dashboard">
+          {isAuthenticated ? <Dashboard /> : <Redirect to="/login" />}
+        </Route>
+        <Redirect from="/" to="/login" />
+      </Switch>
     </Router>
   );
 }
