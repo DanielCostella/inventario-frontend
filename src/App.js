@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Register from './pages/Register';  // Importa el componente de registro
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
   return (
     <Router>
-      <Switch>
-        <Route path="/login">
-          {isAuthenticated ? <Redirect to="/dashboard" /> : <Login onLogin={handleLogin} />}
-        </Route>
-        <Route path="/dashboard">
-          {isAuthenticated ? <Dashboard /> : <Redirect to="/login" />}
-        </Route>
-        <Redirect from="/" to="/login" />
-      </Switch>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/register" element={<Register />} />  {/* Ruta de registro */}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
     </Router>
   );
 }
 
 export default App;
+
+
+
+
+
+
+
+
