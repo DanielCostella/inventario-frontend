@@ -57,12 +57,18 @@ function Dashboard() {
     }
   };
 
-  const handleDeleteMaterial = async (materialId) => {
+  const handleDeleteMaterial = async () => {
+    if (!selectedMaterial) {
+      setMessage('Por favor, selecciona un material para eliminar.');
+      return;
+    }
+
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/materials/${materialId}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/materials/${selectedMaterial}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
-      setMaterials(materials.filter(material => material.id !== materialId));
+      setMaterials(materials.filter(material => material.id !== selectedMaterial));
+      setSelectedMaterial(null); // Resetear la selección después de eliminar
       setMessage('Material eliminado correctamente.');
     } catch (err) {
       console.error('No se pudo eliminar el material:', err);
@@ -141,14 +147,17 @@ function Dashboard() {
       <div className="card mb-4">
         <div className="card-header">Eliminar Material</div>
         <div className="card-body">
-          <ul className="list-group">
-            {materials.map(material => (
-              <li key={material.id} className="list-group-item d-flex justify-content-between align-items-center">
-                {material.nombre} - {material.stock} unidades
-                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteMaterial(material.id)}>Eliminar</button>
-              </li>
-            ))}
-          </ul>
+          <div className="form-group d-flex">
+            <select className="form-control mr-2" onChange={(e) => setSelectedMaterial(e.target.value)} value={selectedMaterial || ""}>
+              <option value="">Selecciona un material para eliminar</option>
+              {materials.map(material => (
+                <option key={material.id} value={material.id}>
+                  {material.nombre} - {material.stock} unidades
+                </option>
+              ))}
+            </select>
+            <button className="btn btn-danger" onClick={handleDeleteMaterial}>Eliminar</button>
+          </div>
         </div>
       </div>
 
