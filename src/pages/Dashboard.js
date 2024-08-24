@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Modal, Button } from 'react-bootstrap';
 
 function Dashboard() {
   const [materials, setMaterials] = useState([]);
@@ -7,6 +8,8 @@ function Dashboard() {
   const [quantity, setQuantity] = useState(0);
   const [message, setMessage] = useState('');
   const [newMaterial, setNewMaterial] = useState({ nombre: '', descripcion: '', stock: 0 });
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const fetchMaterials = async () => {
@@ -51,6 +54,7 @@ function Dashboard() {
       setMaterials([...materials, response.data]);
       setNewMaterial({ nombre: '', descripcion: '', stock: 0 });
       setMessage('Material agregado correctamente.');
+      setShowAddModal(false); // Cerrar modal después de añadir
     } catch (err) {
       console.error('No se pudo agregar el material:', err);
       setMessage('Error al agregar el material.');
@@ -68,8 +72,9 @@ function Dashboard() {
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
       setMaterials(materials.filter(material => material.id !== selectedMaterial));
-      setSelectedMaterial(null); // Resetear la selección después de eliminar
+      setSelectedMaterial(null); 
       setMessage('Material eliminado correctamente.');
+      setShowDeleteModal(false); // Cerrar modal después de eliminar
     } catch (err) {
       console.error('No se pudo eliminar el material:', err);
       setMessage('Error al eliminar el material.');
@@ -80,44 +85,9 @@ function Dashboard() {
     <div className="container mt-5">
       <h2 className="mb-4">Gestión de Inventario</h2>
 
-      {/* Sección para añadir un nuevo material */}
+      {/* Sección para seleccionar material */}
       <div className="card mb-4">
-        <div className="card-header">Añadir Nuevo Material</div>
-        <div className="card-body">
-          <div className="form-group">
-            <input 
-              type="text" 
-              className="form-control"
-              placeholder="Nombre del Material" 
-              value={newMaterial.nombre} 
-              onChange={(e) => setNewMaterial({ ...newMaterial, nombre: e.target.value })} 
-            />
-          </div>
-          <div className="form-group">
-            <input 
-              type="text" 
-              className="form-control"
-              placeholder="Descripción" 
-              value={newMaterial.descripcion} 
-              onChange={(e) => setNewMaterial({ ...newMaterial, descripcion: e.target.value })} 
-            />
-          </div>
-          <div className="form-group">
-            <input 
-              type="number" 
-              className="form-control"
-              placeholder="Stock Inicial" 
-              value={newMaterial.stock} 
-              onChange={(e) => setNewMaterial({ ...newMaterial, stock: Math.max(0, parseInt(e.target.value, 10)) })} 
-            />
-          </div>
-          <button className="btn btn-primary" onClick={handleAddMaterial}>Añadir Material</button>
-        </div>
-      </div>
-
-      {/* Sección para actualizar el stock */}
-      <div className="card mb-4">
-        <div className="card-header">Actualizar Stock</div>
+        <div className="card-header">Seleccionar Material</div>
         <div className="card-body">
           <div className="form-group">
             <select className="form-control" onChange={(e) => setSelectedMaterial(e.target.value)} value={selectedMaterial || ""}>
@@ -143,25 +113,66 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Sección para eliminar un material */}
-      <div className="card mb-4">
-        <div className="card-header">Eliminar Material</div>
-        <div className="card-body">
-          <div className="form-group d-flex">
-            <select className="form-control mr-2" onChange={(e) => setSelectedMaterial(e.target.value)} value={selectedMaterial || ""}>
-              <option value="">Selecciona un material para eliminar</option>
-              {materials.map(material => (
-                <option key={material.id} value={material.id}>
-                  {material.nombre} - {material.stock} unidades
-                </option>
-              ))}
-            </select>
-            <button className="btn btn-danger" onClick={handleDeleteMaterial}>Eliminar</button>
-          </div>
-        </div>
-      </div>
+      {/* Botones para abrir modales */}
+      <button className="btn btn-primary mr-2" onClick={() => setShowAddModal(true)}>Añadir Nuevo Material</button>
+      <button className="btn btn-warning" onClick={() => setShowDeleteModal(true)}>Eliminar Material</button>
 
-      {message && <p className="alert alert-info">{message}</p>}
+      {/* Modal para añadir nuevo material */}
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Añadir Nuevo Material</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <input 
+            type="text" 
+            className="form-control mb-2"
+            placeholder="Nombre del Material" 
+            value={newMaterial.nombre} 
+            onChange={(e) => setNewMaterial({ ...newMaterial, nombre: e.target.value })} 
+          />
+          <input 
+            type="text" 
+            className="form-control mb-2"
+            placeholder="Descripción" 
+            value={newMaterial.descripcion} 
+            onChange={(e) => setNewMaterial({ ...newMaterial, descripcion: e.target.value })} 
+          />
+          <input 
+            type="number" 
+            className="form-control"
+            placeholder="Stock Inicial" 
+            value={newMaterial.stock} 
+            onChange={(e) => setNewMaterial({ ...newMaterial, stock: Math.max(0, parseInt(e.target.value, 10)) })} 
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancelar</Button>
+          <Button variant="primary" onClick={handleAddMaterial}>Añadir Material</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal para eliminar material */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Eliminar Material</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <select className="form-control mb-2" onChange={(e) => setSelectedMaterial(e.target.value)} value={selectedMaterial || ""}>
+            <option value="">Selecciona un material para eliminar</option>
+            {materials.map(material => (
+              <option key={material.id} value={material.id}>
+                {material.nombre} - {material.stock} unidades en stock
+              </option>
+            ))}
+          </select>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancelar</Button>
+          <Button variant="danger" onClick={handleDeleteMaterial}>Eliminar Material</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {message && <div className="alert alert-info mt-3">{message}</div>}
     </div>
   );
 }
