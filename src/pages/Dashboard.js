@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal, Button } from 'react-bootstrap';
+import './Dashboard.css';  // Nuevo archivo para estilos personalizados
+
 
 function Dashboard() {
   const [materials, setMaterials] = useState([]);
@@ -82,8 +84,8 @@ function Dashboard() {
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="mb-4">Gestión de Inventario</h2>
+    <div className="container mt-5 dashboard-container">
+      <h2 className="mb-4 text-center">Gestión de Inventario</h2>
 
       {/* Sección para seleccionar material */}
       <div className="card mb-4">
@@ -108,14 +110,18 @@ function Dashboard() {
               placeholder="Introduce la cantidad" 
             />
           </div>
-          <button className="btn btn-success mr-2" onClick={() => handleUpdateStock('add')}>Añadir al Stock</button>
-          <button className="btn btn-danger" onClick={() => handleUpdateStock('subtract')}>Restar del Stock</button>
+          <div className="text-center">
+            <button className="btn btn-success mr-2" onClick={() => handleUpdateStock('add')}>Añadir al Stock</button>
+            <button className="btn btn-danger" onClick={() => handleUpdateStock('subtract')}>Restar del Stock</button>
+          </div>
         </div>
       </div>
 
       {/* Botones para abrir modales */}
-      <button className="btn btn-primary mr-2" onClick={() => setShowAddModal(true)}>Añadir Nuevo Material</button>
-      <button className="btn btn-warning" onClick={() => setShowDeleteModal(true)}>Eliminar Material</button>
+      <div className="text-center mb-4">
+        <button className="btn btn-primary mr-2" onClick={() => setShowAddModal(true)}>Añadir Nuevo Material</button>
+        <button className="btn btn-warning" onClick={() => setShowDeleteModal(true)}>Eliminar Material</button>
+      </div>
 
       {/* Modal para añadir nuevo material */}
       <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
@@ -157,7 +163,7 @@ function Dashboard() {
           <Modal.Title>Eliminar Material</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <select className="form-control mb-2" onChange={(e) => setSelectedMaterial(e.target.value)} value={selectedMaterial || ""}>
+          <select className="form-control mb-2" onChange={(e) => setSelectedMaterial(e.target.value)} value={selectedMaterial || ""}>
             <option value="">Selecciona un material para eliminar</option>
             {materials.map(material => (
               <option key={material.id} value={material.id}>
@@ -172,7 +178,7 @@ function Dashboard() {
         </Modal.Footer>
       </Modal>
 
-      {message && <div className="alert alert-info mt-3">{message}</div>}
+      {message && <div className="alert alert-info mt-3 text-center">{message}</div>}
     </div>
   );
 }
