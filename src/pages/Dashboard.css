@@ -1,30 +1,60 @@
 .dashboard-container {
-    max-width: 600px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 20px;
-    background-color: #e0f7e9; /* Verde claro */
+    background-color: #e0f7e9;
     border-radius: 8px;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
   }
   
-  h2 {
-    text-align: center;
-    color: #333;
+  .table-container {
+    max-height: 70vh;
+    overflow-y: auto;
   }
   
-  .card {
-    margin-bottom: 20px;
-  }
-  
-  .btn {
+  .table {
+    position: relative;
     width: 100%;
-    margin-bottom: 10px;
   }
   
-  .form-control {
-    margin-bottom: 10px;
+  .table thead {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1;
   }
   
-  .alert {
-    margin-top: 20px;
+  .material-row {
+    border: 1px solid #ddd;
+  }
+  
+  .material-row:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .table td, .table th {
+    vertical-align: middle;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  .input-group {
+    flex-wrap: nowrap;
+  }
+  
+  .input-group .form-control {
+    width: 60px;
+    min-width: 60px;
+  }
+  
+  .input-group .btn {
+    padding: .375rem .5rem;
+  }
+  
+  .message-overlay {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
   }
