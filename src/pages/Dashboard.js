@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Modal, Button, Table, Form, InputGroup } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -16,6 +17,7 @@ function Dashboard() {
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const tableRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -187,6 +189,13 @@ function Dashboard() {
     }));
   };
 
+  // Nueva función para manejar el cierre de sesión
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    setCurrentUser(null);
+    navigate('/login');
+  };
+
   return (
     <div className="dashboard-container">
       <h2 className="mb-4">Gestión de Inventario</h2>
@@ -334,6 +343,11 @@ function Dashboard() {
           <Button variant="danger" onClick={handleDeleteMaterial}>Eliminar Material</Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Botón de cierre de sesión */}
+      <div className="text-center mt-4">
+        <Button variant="danger" onClick={handleLogout}>Cerrar Sesión</Button>
+      </div>
 
       {message && (
         <div className="alert alert-info mt-3 text-center message-overlay">
